@@ -4,4 +4,8 @@ gem 'authlogic'
 gem 'rails', '2.3.5'
 gem 'sqlite3-ruby'
 
-disable_gems
+only :test do
+  gem 'rspec-rails'
+end
+
+disable_system_gems

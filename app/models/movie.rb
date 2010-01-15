@@ -3,8 +3,8 @@ class Movie
 
   def initialize(path)
     @path = path
-    @full_title = File.basename(path, '.*')
-    @title = @full_title.sub(/\s+\(\d{4}\)\Z/, '')
+    @full_title = File.basename(path, '.*').gsub(/(\w):(\w)/) { "#{$1}/#{$2}" }
+    @title = @full_title.sub(%r{\s+\(\d{4}(/\w+)?\)\Z}, '')
   end
 
   def sort_title
