@@ -3,10 +3,8 @@
   <title>Movies</title>
 </head>
 <body>
-  <ul>
   <%- @movies.each do |movie| -%>
-    <li><%=h movie.title %></li>
+    <%= image_tag movie_thumbnail_url(movie, :small), :alt => movie.title, :width => '100' %>
   <%- end -%>
-  </ul>
 </body>
 </html>
