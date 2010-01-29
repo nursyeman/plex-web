@@ -4,44 +4,40 @@ class Movie < ActiveRecord::Base
 
   belongs_to :file, :class_name => 'MediaFile', :foreign_key => 'idFile'
 
-  def title
-    c00
-  end
+  COLUMNS = [
+    :title,           # string
+    :plot,            # string
+    :outline,         # string
+    :tagline,         # string
+    :votes,           # string
+    :rating,          # float
+    :credits,         # string
+    :year,            # int
+    :thumburl,        # string
+    :ident,           # string
+    :playcount,       # int
+    :runtime,         # string
+    :mpaa,            # string
+    :top250,          # int
+    :genre,           # string
+    :director,        # string
+    :original_title,  # string
+    :thumburl_spoof,  # string
+    :studios,         # string
+    :trailer,         # string
+    :fanart           # string
+  ].freeze
 
-  def title=(title)
-    self.c00 = title
-  end
+  COLUMNS.each_with_index do |column, i|
+    class_eval <<-RUBY
+    def #{column}
+      c#{sprintf("%02d", i)}
+    end
 
-  def long_description
-    c01
-  end
-
-  def long_description=(long_description)
-    self.c01 = long_description
-  end
-
-  def short_description
-    c02
-  end
-
-  def short_description=(short_description)
-    self.c02 = short_description
-  end
-
-  def year
-    c07
-  end
-
-  def year=(year)
-    self.c07 = year
-  end
-
-  def imdb_key
-    c09
-  end
-
-  def imdb_key=(imdb_key)
-    self.c09 = imdb_key
+    def #{column}=(value)
+      self.c#{sprintf("%02d", i)} = value
+    end
+    RUBY
   end
 
   def sort_title
@@ -53,10 +49,6 @@ class Movie < ActiveRecord::Base
   end
 
   def thumbnail
-    @thumbnail ||= self.class.thumbnail_strategy.get_thumbnail(self)
-  end
-
-  class <<self
-    attr_accessor :thumbnail_strategy
+    @thumbnail ||= Thumbnail.new(self)
   end
 end

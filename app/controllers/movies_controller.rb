@@ -3,6 +3,10 @@ class MoviesController < ApplicationController
     @movies = Movie.all.sort
   end
 
+  def show
+    @movie = Movie.find(params[:id])
+  end
+
   def download
     movie = Movie.find(params[:id])
 
