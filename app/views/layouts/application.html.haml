@@ -1,0 +1,13 @@
+%html
+  %head
+    = stylesheet_link_tag 'screen.css', :media => 'screen, projection'
+    = stylesheet_link_tag 'print.css', :media => 'print'
+    /[if lt IE 8]
+      = stylesheet_link_tag 'ie.css', :media => 'screen, projection'
+    %title Movies
+  %body.bp.three-col
+    %div#container
+      %div#header
+      %div#sidebar HI
+      %div#content= yield :layout
+      %div#footer

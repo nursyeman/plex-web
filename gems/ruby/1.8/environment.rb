@@ -28,25 +28,27 @@ module Bundler
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rack-1.0.1/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/actionpack-2.3.5/bin")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/actionpack-2.3.5/lib")
-  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rspec-1.3.0/bin")
-  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rspec-1.3.0/lib")
-  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rspec-rails-1.3.2/bin")
-  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rspec-rails-1.3.2/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/mime-types-1.16/bin")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/mime-types-1.16/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rest-client-1.2.0/bin")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rest-client-1.2.0/lib")
-  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/authlogic-2.1.3/bin")
-  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/authlogic-2.1.3/lib")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rspec-1.3.0/bin")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rspec-1.3.0/lib")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rspec-rails-1.3.2/bin")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rspec-rails-1.3.2/lib")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/haml-2.2.17/bin")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/haml-2.2.17/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/sqlite3-ruby-1.2.5/bin")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/sqlite3-ruby-1.2.5/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/sqlite3-ruby-1.2.5/ext")
-  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/haml-2.2.17/bin")
-  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/haml-2.2.17/lib")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/authlogic-2.1.3/bin")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/authlogic-2.1.3/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rake-0.8.7/bin")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rake-0.8.7/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/activerecord-2.3.5/bin")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/activerecord-2.3.5/lib")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/compass-0.8.17/bin")
+  $LOAD_PATH.unshift File.expand_path("#{dir}/gems/compass-0.8.17/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/activeresource-2.3.5/bin")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/activeresource-2.3.5/lib")
   $LOAD_PATH.unshift File.expand_path("#{dir}/gems/rails-2.3.5/bin")
@@ -67,24 +69,26 @@ module Bundler
   @bundled_specs["rack"].loaded_from = "#{dir}/specifications/rack-1.0.1.gemspec"
   @bundled_specs["actionpack"] = eval(File.read("#{dir}/specifications/actionpack-2.3.5.gemspec"))
   @bundled_specs["actionpack"].loaded_from = "#{dir}/specifications/actionpack-2.3.5.gemspec"
-  @bundled_specs["rspec"] = eval(File.read("#{dir}/specifications/rspec-1.3.0.gemspec"))
-  @bundled_specs["rspec"].loaded_from = "#{dir}/specifications/rspec-1.3.0.gemspec"
-  @bundled_specs["rspec-rails"] = eval(File.read("#{dir}/specifications/rspec-rails-1.3.2.gemspec"))
-  @bundled_specs["rspec-rails"].loaded_from = "#{dir}/specifications/rspec-rails-1.3.2.gemspec"
   @bundled_specs["mime-types"] = eval(File.read("#{dir}/specifications/mime-types-1.16.gemspec"))
   @bundled_specs["mime-types"].loaded_from = "#{dir}/specifications/mime-types-1.16.gemspec"
   @bundled_specs["rest-client"] = eval(File.read("#{dir}/specifications/rest-client-1.2.0.gemspec"))
   @bundled_specs["rest-client"].loaded_from = "#{dir}/specifications/rest-client-1.2.0.gemspec"
-  @bundled_specs["authlogic"] = eval(File.read("#{dir}/specifications/authlogic-2.1.3.gemspec"))
-  @bundled_specs["authlogic"].loaded_from = "#{dir}/specifications/authlogic-2.1.3.gemspec"
-  @bundled_specs["sqlite3-ruby"] = eval(File.read("#{dir}/specifications/sqlite3-ruby-1.2.5.gemspec"))
-  @bundled_specs["sqlite3-ruby"].loaded_from = "#{dir}/specifications/sqlite3-ruby-1.2.5.gemspec"
+  @bundled_specs["rspec"] = eval(File.read("#{dir}/specifications/rspec-1.3.0.gemspec"))
+  @bundled_specs["rspec"].loaded_from = "#{dir}/specifications/rspec-1.3.0.gemspec"
+  @bundled_specs["rspec-rails"] = eval(File.read("#{dir}/specifications/rspec-rails-1.3.2.gemspec"))
+  @bundled_specs["rspec-rails"].loaded_from = "#{dir}/specifications/rspec-rails-1.3.2.gemspec"
   @bundled_specs["haml"] = eval(File.read("#{dir}/specifications/haml-2.2.17.gemspec"))
   @bundled_specs["haml"].loaded_from = "#{dir}/specifications/haml-2.2.17.gemspec"
+  @bundled_specs["sqlite3-ruby"] = eval(File.read("#{dir}/specifications/sqlite3-ruby-1.2.5.gemspec"))
+  @bundled_specs["sqlite3-ruby"].loaded_from = "#{dir}/specifications/sqlite3-ruby-1.2.5.gemspec"
+  @bundled_specs["authlogic"] = eval(File.read("#{dir}/specifications/authlogic-2.1.3.gemspec"))
+  @bundled_specs["authlogic"].loaded_from = "#{dir}/specifications/authlogic-2.1.3.gemspec"
   @bundled_specs["rake"] = eval(File.read("#{dir}/specifications/rake-0.8.7.gemspec"))
   @bundled_specs["rake"].loaded_from = "#{dir}/specifications/rake-0.8.7.gemspec"
   @bundled_specs["activerecord"] = eval(File.read("#{dir}/specifications/activerecord-2.3.5.gemspec"))
   @bundled_specs["activerecord"].loaded_from = "#{dir}/specifications/activerecord-2.3.5.gemspec"
+  @bundled_specs["compass"] = eval(File.read("#{dir}/specifications/compass-0.8.17.gemspec"))
+  @bundled_specs["compass"].loaded_from = "#{dir}/specifications/compass-0.8.17.gemspec"
   @bundled_specs["activeresource"] = eval(File.read("#{dir}/specifications/activeresource-2.3.5.gemspec"))
   @bundled_specs["activeresource"].loaded_from = "#{dir}/specifications/activeresource-2.3.5.gemspec"
   @bundled_specs["rails"] = eval(File.read("#{dir}/specifications/rails-2.3.5.gemspec"))
