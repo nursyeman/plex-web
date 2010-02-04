@@ -13,7 +13,7 @@ class MoviesController < ApplicationController
     if movie.nil?
       render :nothing => true, :status => 404
     else
-      send_file movie.file.to_s
+      send_file movie.file.to_s, :stream => true, :buffer_size => 32.kilobytes
     end
   end
 end
