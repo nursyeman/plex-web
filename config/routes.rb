@@ -1,7 +1,7 @@
 ActionController::Routing::Routes.draw do |map|
   # The priority is based upon order of creation: first created -> highest priority.
 
-  map.resources :movies do |movies|
+  map.resources :movies, :member => { :download => :get } do |movies|
     movies.resources :thumbnails
   end
 
