@@ -38,14 +38,12 @@ class View
   animate: ->
     @element.animate.apply(@element, arguments)
 
-  maximize: (keepMaximized, size) ->
-    max: =>
-      Size.setSizeForElement @element, size || Viewport.size()
+  maximize: (size) ->
+    Size.setSizeForElement @element, size || Viewport.size()
 
-    max()
-    Viewport.bind 'resize', max if keepMaximized
-
-  keepMaximized: -> @maximize true
+  keepMaximized: (size) ->
+    Viewport.bind 'resize', =>
+      @maximize size
 
 class BackgroundImage extends View
   url: null
@@ -117,12 +115,12 @@ jQuery ($) ->
   backgroundImage: new BackgroundImage($'#background-image')
 
   backgroundImage.bind 'imageWillLoad', ->
-    dimmer.css {
-      opacity: 0
+    backgroundImage.css {
+      opacity: 1
     }
 
   backgroundImage.bind 'load', ->
-    dimmer.animate {
+    backgroundImage.animate {
       opacity: 0.5
     }
 
@@ -150,4 +148,3 @@ jQuery ($) ->
     $(movies).appendTo container.element
 
   container.keepMaximized()
-  dimmer.keepMaximized()
