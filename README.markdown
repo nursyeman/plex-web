@@ -8,6 +8,7 @@ What you need:
 
 * Ruby 1.8 or Ruby 1.9
 * [bundler](http://github.com/carlhuda/bundler)
+* [coffee-script](http://jashkenas.github.com/coffee-script/) ([Mac OS X instructions](http://brian.maybeyoureinsane.net/blog/2010/03/22/installing-coffeescriptnodejs-on-mac-os-x/))
 
 How to start the app:
 
