@@ -1,15 +1,21 @@
 class Thumbnail::PlexEightStrategy
-  THUMBS_DIR = File.expand_path("~/Library/Application Support/Plex/userdata/Thumbnails/Video").freeze
+  def initialize(path)
+    @path = path
+  end
 
-  def get_thumbnail(movie)
-    crc = crc32(movie)
-    hex = sprintf("%08x", crc)
-    return sprintf("%s/%c/%s.tbn", THUMBS_DIR, hex[0], hex)
+  def get_thumbnail(movie, type=:poster)
+    case type
+    when :poster
+      crc = crc32(movie)
+      "%s/%c/%s.tbn" % [@path, crc[0], crc]
+    when :fanart
+      "%s/%s.tbn" % [File.join(@path, 'Fanart'), crc32(movie)]
+    end
   end
 
   private
 
   def crc32(movie)
-    Crc32.crc32(movie.file.to_s.downcase)
+    sprintf("%08x", Crc32.crc32(movie.file.to_s.downcase))
   end
 end

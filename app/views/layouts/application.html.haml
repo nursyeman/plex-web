@@ -1,13 +1,10 @@
 %html
   %head
+    = javascript_include_tag 'lib/jquery'
+    = javascript_include_tag 'underscore'
+    = javascript_include_tag 'movies'
     = stylesheet_link_tag 'screen.css', :media => 'screen, projection'
-    = stylesheet_link_tag 'print.css', :media => 'print'
     /[if lt IE 8]
       = stylesheet_link_tag 'ie.css', :media => 'screen, projection'
     %title Movies
-  %body.bp.three-col
-    %div#container
-      %div#header
-      %div#sidebar HI
-      %div#content= yield :layout
-      %div#footer
+  %body= yield :layout

@@ -48,7 +48,17 @@ class Movie < ActiveRecord::Base
     self.sort_title <=> other.sort_title
   end
 
-  def thumbnail
-    @thumbnail ||= Thumbnail.new(self)
+  def poster
+    @poster ||= Thumbnail.new(self, :poster)
+  end
+
+  def fanart
+    @fanart ||= Thumbnail.new(self, :fanart)
+  end
+
+  def to_json(*args)
+    (COLUMNS + [:id, :sort_title, :poster, :fanart]).inject({}) do |hash, key|
+      hash.merge(key => __send__(key))
+    end.to_json(*args)
   end
 end

@@ -1,17 +1,19 @@
 class Thumbnail
   SIZES = {
-    :small => 100,
-    :large => 200
+    :default => nil,
+    :small   => 100,
+    :large   => 200
   }
 
-  attr_accessor :movie
+  attr_accessor :movie, :type
 
-  def initialize(movie)
+  def initialize(movie, type)
     self.movie = movie
+    self.type  = type
   end
 
   def default
-    @default ||= self.class.strategy.get_thumbnail(movie)
+    @default ||= self.class.strategy.get_thumbnail(movie, type)
   end
 
   def small
@@ -26,7 +28,7 @@ class Thumbnail
     return nil unless width = SIZES[size.to_sym]
 
     name = File.basename(default, '.*')
-    dest = "#{RAILS_ROOT}/tmp/thumbnails/#{size}/#{name[0,1]}/#{name}.jpg"
+    dest = "#{RAILS_ROOT}/tmp/thumbnails/#{type}/#{size}/#{name[0,1]}/#{name}.jpg"
 
     if not File.exist?(dest)
       FileUtils.mkdir_p(File.dirname(dest))

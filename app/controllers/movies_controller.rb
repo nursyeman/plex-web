@@ -1,6 +1,15 @@
 class MoviesController < ApplicationController
+  include MoviesHelper
+
   def index
-    @movies = Movie.all.sort
+    respond_to do |format|
+      format.html do
+        redirect_to root_url
+      end
+      format.json do
+        render :json => Movie.all.sort.map {|movie| movie_data_for_view(movie)}
+      end
+    end
   end
 
   def show

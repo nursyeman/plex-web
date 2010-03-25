@@ -5,8 +5,8 @@
 # Make sure the secret is at least 30 characters and all random, 
 # no regular words or you'll be exposed to dictionary attacks.
 ActionController::Base.session = {
-  :key         => '_gotdns_session',
-  :secret      => 'e1411c2ff7af11d73bab07e65a9a80363ab699c7c885828393c6988846e755d00c9897939416419ad5029c47551c62f7166347f4962d543e8ea15b9706efc8e3'
+  :key    => '_plex-web_session',
+  :secret => '6fd3f94b53a1d324ebc60d756cbc09a1e7c4279b31749bda2a28b1fcc6efdef1efcb6cb6f6fbd1d374d9f2c92b07a56ec27dd00e802023bf8a57173207829172'
 }
 
 # Use the database for sessions instead of the cookie-based default,

@@ -1,15 +1,20 @@
-bundle_path 'gems'
+source :gemcutter
 
-gem 'authlogic'
-gem 'rails', '2.3.5'
-gem 'sqlite3-ruby'
-gem 'nokogiri'
-gem 'rest-client'
-gem 'compass', '0.8.17'
-gem 'haml', '2.2.17'
+gem 'rails', '3.0.0.beta'
 
-only :test do
-  gem 'rspec-rails'
+case RUBY_VERSION
+when /1.9/
+  gem 'sqlite3'
+else
+  gem 'sqlite3-ruby'
 end
 
-disable_system_gems
+gem 'nokogiri'
+gem 'rest-client'
+gem 'haml'
+
+gem 'rack-coffee'
+
+group :test do
+  gem "rspec-rails", ">= 2.0.0.beta.1"
+end
