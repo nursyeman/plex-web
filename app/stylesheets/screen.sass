@@ -1,12 +1,13 @@
 body
   background-color: black
-
-body, #container
   margin: 0
   padding: 0
   overflow-x: hidden
 
-.wallpaper
+img
+  border: 0
+
+.Wallpaper
   border: 0
   margin: 0
   position: fixed
@@ -15,17 +16,43 @@ body, #container
   width: 100%
   height: 100%
   z-index: -2
+  opacity: 0.2
 
-h1
-  color: #fff
-  font-family: "Lucida Grande"
-  opacity: 1
+.MovieTileList
+  position: relative
 
-img
-  border: 0
+  .MovieTile
+    overflow: hidden
+    width: 100px
+    height: 148px
+    cursor: pointer
 
-.tile
-  overflow: hidden
-  width: 100px
-  height: 148px
-  cursor: pointer
+.MovieDetailView
+  position: relative
+
+  !margin = 20px
+  !posterWidth = 300px
+
+  h1
+    color: #fff
+    text-shadow: 2px 2px 5px #000
+    font-family: "Lucida Grande"
+    position: absolute
+    top = !margin
+    left = !margin * 2 + !posterWidth
+    margin: 0
+
+  .MoviePoster
+    position: absolute
+    top = !margin
+    left = !margin
+    width = !posterWidth
+
+  .MovieDescription
+    color: #fff
+    text-shadow: 1px 1px 1px #000
+    font-family: "Lucida Grande"
+    position: absolute
+    top = !margin * 3
+    left = !margin * 2 + !posterWidth
+    margin-right = !margin

@@ -2,6 +2,7 @@ module MoviesHelper
   def movie_data_for_view(movie)
     {
       :title => movie.title,
+      :description => movie.plot,
       :posters => {
         :small => {:url => movie_poster_url(movie, :small), :width => Thumbnail::SIZES[:small]},
         :default => {:url => movie_poster_url(movie, :default), :width => Thumbnail::SIZES[:default]},

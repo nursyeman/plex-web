@@ -64,14 +64,13 @@ class View
 Viewport: new View($(window))
 
 
-class Wallpaper extends View
+class ImageView extends View
   url: null
   loadedImage: null
 
   constructor: (element) ->
     super element
     @imageLoader: new ImageLoader()
-    @keepMaximized()
 
   load: (url) ->
     @url: url
@@ -84,12 +83,18 @@ class Wallpaper extends View
 
   onload: (loadedImage) ->
     return unless loadedImage.url is @url
-    @trigger 'imageWillLoad'
     @loadedImage: loadedImage
+    @trigger 'imageWillLoad'
     @element.attr 'src', loadedImage.url
-    @maximize()
     @show()
     @trigger 'load'
+
+class Wallpaper extends ImageView
+  constructor: (element) ->
+    super element
+    @keepMaximized()
+    @bind 'imageWillLoad', =>
+      @maximize()
 
   maximize: ->
     return unless @loadedImage
@@ -179,7 +184,7 @@ class MovieTileList extends View
   tiles: null
 
   constructor: ->
-    super $('<div></div>')
+    super $('<div class="MovieTileList"></div>')
 
   displayTiles: (tiles) ->
     @hide()
@@ -196,7 +201,7 @@ class MovieTile extends View
   movie: null
 
   constructor: ->
-    super $('<div class="tile"><img /></div>')
+    super $('<div class="MovieTile"><img /></div>')
     @image: @element.find 'img'
     @bind 'click', =>
       page.pushView new MovieDetailView(@movie)
@@ -232,30 +237,37 @@ class Movie
   downloadPoster: (size, callback) ->
     ImageLoader.load @posterURL(size), callback
 
+  title: ->
+    @data.title
+
+  description: ->
+    @data.description
+
 class MovieDetailView extends View
   movie: null
 
   constructor: (movie) ->
-    super $('<div></div>')
-    @movie: movie
+    super $('
+      <div class="MovieDetailView">
+        <h1></h1>
+        <img class="MoviePoster" />
+        <p class="MovieDescription"></p>
+      </div>')
+
+    @h1:          @element.find 'h1'
+    @poster:      new ImageView(@element.find '.MoviePoster')
+    @description: @element.find '.MovieDescription'
+    @movie:       movie
 
   show: ->
+    @h1.text @movie.title()
     page.wallpaper.load @movie.fanartURL()
+    @poster.load @movie.posterURL()
+    @description.text @movie.description()
     super()
 
 jQuery ($) ->
-  page.wallpaper: new Wallpaper($('body > .wallpaper'))
-
-  page.wallpaper.bind 'imageWillLoad', ->
-    page.wallpaper.css {
-      opacity: 1
-    }
-
-  page.wallpaper.bind 'load', ->
-    page.wallpaper.animate {
-      opacity: 0.5
-    }
-
+  page.wallpaper: new Wallpaper($('body > .Wallpaper'))
 
   setTitle: (title) ->
     header.text title
