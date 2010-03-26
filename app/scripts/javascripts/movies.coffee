@@ -21,7 +21,6 @@ class View
     @bind 'keydown', (event) => @onKeyPress event
 
   onKeyPress: (event) ->
-    console.log event.which
     switch event.which
       when 27
         event.preventDefault()
@@ -122,24 +121,59 @@ class Size
 Size.zero: ->
   new Size(0, 0)
 
-Page: new View($(document))
+class Page extends View
+  stack: null
 
-Page.pushView: (view) ->
-  @stack ||= []
-  _.invoke @stack, 'hide'
-  @stack.push view
-  view.element.appendTo($('body'))
-  view.show()
+  constructor: ->
+    @stack: []
+    super $(document)
 
-Page.popView: ->
-  @stack ||= []
-  return if @stack.length == 1
-  view: @stack.pop()
-  view.remove()
-  Page.pushView @stack.pop()
+  pushView: (view) ->
+    @saveCurrentState()
 
-Page.bind 'cancel', ->
-  Page.popView()
+    top: @topView()
+    top.hide() if top
+
+    @stack.push {
+      view: view
+    }
+
+    view.element.appendTo($('body'))
+    view.show()
+
+  popView: ->
+    return if @stack.length == 1
+
+    state: @stack.pop()
+    state.view.remove()
+
+    top: @topView()
+    top.show() if top
+
+    @restoreCurrentState()
+
+  topView: ->
+    state: @topViewState()
+    state && state.view
+
+  topViewState: ->
+    @stack && @stack[@stack.length-1]
+
+  saveCurrentState: ->
+    state: @topViewState()
+    if state
+      state.scrollX: window.scrollX
+      state.scrollY: window.scrollY
+
+  restoreCurrentState: ->
+    state: @topViewState()
+    if state
+      window.scrollTo state.scrollX, state.scrollY
+
+page: new Page()
+
+page.bind 'cancel', ->
+  page.popView()
 
 class MovieTileList extends View
   tiles: null
@@ -155,7 +189,7 @@ class MovieTileList extends View
     @show()
 
   show: ->
-    Page.wallpaper.clear()
+    page.wallpaper.clear()
     super()
 
 class MovieTile extends View
@@ -165,7 +199,7 @@ class MovieTile extends View
     super $('<div class="tile"><img /></div>')
     @image: @element.find 'img'
     @bind 'click', =>
-      Page.pushView new MovieDetailView(@movie)
+      page.pushView new MovieDetailView(@movie)
 
   setMovie: (movie) ->
     @hide()
@@ -206,19 +240,19 @@ class MovieDetailView extends View
     @movie: movie
 
   show: ->
-    Page.wallpaper.load @movie.fanartURL()
+    page.wallpaper.load @movie.fanartURL()
     super()
 
 jQuery ($) ->
-  Page.wallpaper: new Wallpaper($('body > .wallpaper'))
+  page.wallpaper: new Wallpaper($('body > .wallpaper'))
 
-  Page.wallpaper.bind 'imageWillLoad', ->
-    Page.wallpaper.css {
+  page.wallpaper.bind 'imageWillLoad', ->
+    page.wallpaper.css {
       opacity: 1
     }
 
-  Page.wallpaper.bind 'load', ->
-    Page.wallpaper.animate {
+  page.wallpaper.bind 'load', ->
+    page.wallpaper.animate {
       opacity: 0.5
     }
 
@@ -244,4 +278,4 @@ jQuery ($) ->
         tile.setMovie(new Movie(datum))
         return tile
     tileList.displayTiles tiles
-    Page.pushView tileList
+    page.pushView tileList
