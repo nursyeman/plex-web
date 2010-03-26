@@ -5,6 +5,9 @@ class ImageLoader
       callback(new LoadedImage(url, new Size(img.width, img.height)))
     img.src = url
 
+ImageLoader.load: (url, callback) ->
+  (new ImageLoader()).load url, callback
+
 class LoadedImage
   constructor: (url, size) ->
     @url: url
@@ -12,19 +15,17 @@ class LoadedImage
     @width: size.width
     @height: size.height
 
-Viewport: {
-  element: $(window)
-
-  size: ->
-    Size.sizeForElement @element
-
-  bind: (name, callback) ->
-    @element.bind(name, callback)
-}
-
 class View
   constructor: (element) ->
     @element: element
+    @bind 'keydown', (event) => @onKeyPress event
+
+  onKeyPress: (event) ->
+    console.log event.which
+    switch event.which
+      when 27
+        event.preventDefault()
+        @trigger 'cancel'
 
   bind: (name, callback) ->
     @element.bind name, callback
@@ -38,14 +39,33 @@ class View
   animate: ->
     @element.animate.apply(@element, arguments)
 
+  size: ->
+    new Size(@element.width(), @element.height())
+
+  setSize: (size) ->
+    @element.width(size.width).height(size.height)
+
+  show: ->
+    @element.show.apply(@element, arguments)
+
+  hide: ->
+    @element.hide.apply(@element, arguments)
+
   maximize: (size) ->
-    Size.setSizeForElement @element, size || Viewport.size()
+    @setSize size || Viewport.size()
 
   keepMaximized: (size) ->
     Viewport.bind 'resize', =>
       @maximize size
 
-class BackgroundImage extends View
+  remove: ->
+    @element.remove()
+    @element: null
+
+Viewport: new View($(window))
+
+
+class Wallpaper extends View
   url: null
   loadedImage: null
 
@@ -59,12 +79,17 @@ class BackgroundImage extends View
     @imageLoader.load url, (loadedImage) =>
       @onload loadedImage
 
+  clear: ->
+    @hide()
+    @load ''
+
   onload: (loadedImage) ->
     return unless loadedImage.url is @url
     @trigger 'imageWillLoad'
     @loadedImage: loadedImage
     @element.attr 'src', loadedImage.url
     @maximize()
+    @show()
     @trigger 'load'
 
   maximize: ->
@@ -97,30 +122,103 @@ class Size
 Size.zero: ->
   new Size(0, 0)
 
-Size.sizeForElement: (element) ->
-  new Size($(element).width(), $(element).height())
+Page: new View($(document))
 
-Size.setSizeForElement: (element, size) ->
-  $(element).width(size.width).height(size.height)
+Page.pushView: (view) ->
+  @stack ||= []
+  _.invoke @stack, 'hide'
+  @stack.push view
+  view.element.appendTo($('body'))
+  view.show()
 
-Size.sizeForViewport: ->
-  Size.sizeForElement window
+Page.popView: ->
+  @stack ||= []
+  return if @stack.length == 1
+  view: @stack.pop()
+  view.remove()
+  Page.pushView @stack.pop()
+
+Page.bind 'cancel', ->
+  Page.popView()
+
+class MovieTileList extends View
+  tiles: null
+
+  constructor: ->
+    super $('<div></div>')
+
+  displayTiles: (tiles) ->
+    @hide()
+    _.invoke(@tiles, 'remove') if @tiles
+    @tiles: tiles
+    $(_.pluck(tiles, 'element')).appendTo(@element)
+    @show()
+
+  show: ->
+    Page.wallpaper.clear()
+    super()
+
+class MovieTile extends View
+  movie: null
+
+  constructor: ->
+    super $('<div class="tile"><img /></div>')
+    @image: @element.find 'img'
+    @bind 'click', =>
+      Page.pushView new MovieDetailView(@movie)
+
+  setMovie: (movie) ->
+    @hide()
+    @movie: movie
+    movie.downloadPoster 'small', (loadedImage) =>
+      @image.attr 'src', loadedImage.url
+      @css {
+        'margin': '5px'
+        'float': 'left'
+      }
+      @show()
+
+class Movie
+  data: null
+
+  constructor: (data) ->
+    @setData data if data
+
+  setData: (data) ->
+    @data: data
+
+  fanartURL: (size) ->
+    fanart: @data.fanarts[size || 'default'] if @data
+    fanart.url if fanart
+
+  posterURL: (size) ->
+    poster: @data.posters[size || 'default'] if @data
+    poster.url if poster
+
+  downloadPoster: (size, callback) ->
+    ImageLoader.load @posterURL(size), callback
+
+class MovieDetailView extends View
+  movie: null
+
+  constructor: (movie) ->
+    super $('<div></div>')
+    @movie: movie
+
+  show: ->
+    Page.wallpaper.load @movie.fanartURL()
+    super()
 
 jQuery ($) ->
-  # window: this
-  header: $'h1'
-  body: $'body'
-  container: new View($'#container')
-  dimmer: new View($'#dimmer')
-  backgroundImage: new BackgroundImage($'#background-image')
+  Page.wallpaper: new Wallpaper($('body > .wallpaper'))
 
-  backgroundImage.bind 'imageWillLoad', ->
-    backgroundImage.css {
+  Page.wallpaper.bind 'imageWillLoad', ->
+    Page.wallpaper.css {
       opacity: 1
     }
 
-  backgroundImage.bind 'load', ->
-    backgroundImage.animate {
+  Page.wallpaper.bind 'load', ->
+    Page.wallpaper.animate {
       opacity: 0.5
     }
 
@@ -139,12 +237,11 @@ jQuery ($) ->
   }
 
   api.movies (data) ->
-    movies:
-      _.map data, (movie) ->
-        $("<a href='#' class='movie'><img src='${movie.posters.small.url}' width='${movie.posters.small.width}'/></a>").click ->
-          $('.movie').hide()
-          backgroundImage.load movie.fanarts['default'].url
-          setTitle movie.title
-    $(movies).appendTo container.element
-
-  container.keepMaximized()
+    tileList: new MovieTileList()
+    tiles:
+      _.map data, (datum) ->
+        tile: new MovieTile()
+        tile.setMovie(new Movie(datum))
+        return tile
+    tileList.displayTiles tiles
+    Page.pushView tileList
