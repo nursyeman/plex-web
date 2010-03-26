@@ -3,7 +3,7 @@ class FanartsController < ApplicationController
     movie = Movie.find(params[:movie_id])
 
     if movie.poster.exist?
-      expires_in 1.day, :public => true
+      expires_in 10.years, :public => true
       # send_file movie.fanart[params[:id]],
       #   :filename => movie.file.basename('.*')+'.jpg',
       #   :type => 'image/jpeg',
