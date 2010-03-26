@@ -1,7 +1,22 @@
 require 'fileutils'
 
+module Helpers
+  def capture(*cmd)
+    Command.capture(*cmd)
+  end
+
+  def system_or_die(*cmd)
+    Command.system_or_raise(*cmd)
+  rescue => e
+    $stdout.puts e
+    exit(1)
+  end
+end
+
 class CoffeeScript < Thor
   namespace :coffee
+
+  include Helpers
 
   desc 'install', 'Install CoffeeScript using Homebrew'
   method_options %w( force -f ) => false
@@ -9,13 +24,17 @@ class CoffeeScript < Thor
   def install
     Brew.assert_installed
 
-    if installed? && !options[:force]
-      puts "NOTE: CoffeeScript #{version} is already installed"
-      exit(0)
+    if installed?
+      if options[:force]
+        system_or_die "brew rm coffee-script"
+      else
+        puts "NOTE: CoffeeScript #{version} is already installed, use --force to reinstall it"
+        exit(0)
+      end
     end
 
     node.install unless node.installed?
-    Command.system_or_die "brew install coffee-script"
+    system_or_die "brew install coffee-script"
   end
 
   no_tasks do
@@ -28,7 +47,7 @@ class CoffeeScript < Thor
     end
 
     def version
-      Version.from Command.capture(%w[coffee -v]).chomp
+      Version.from capture(%w[coffee -v]).chomp
     rescue Command::Error
       nil
     end
@@ -41,6 +60,8 @@ end
 
 class Node < Thor
   DEFAULT_VERSION = '0.1.33'.freeze
+
+  include Helpers
 
   desc 'install', 'Install node.js'
   method_options %w( version -v ) => DEFAULT_VERSION
@@ -59,12 +80,16 @@ class Node < Thor
     end
 
     with_scratch_directory do
-      Command.system_or_die "curl http://nodejs.org/dist/node-v#{target_version}.tar.gz | tar xz --strip-components 1"
-      Command.system_or_die "./configure --prefix=#{Brew.prefix}/Cellar/node/#{target_version}"
-      Command.system_or_die "sudo make"
-      Command.system_or_die "chmod -R '#{ENV['USER']}':staff ."
-      Command.system_or_die "make install"
-      Command.system_or_die "brew link node"
+      system_or_die "curl http://nodejs.org/dist/node-v#{target_version}.tar.gz | tar xz --strip-components 1"
+      system_or_die "./configure --prefix=#{Brew.prefix}/Cellar/node/#{target_version}"
+
+      # this is really, really, stupid, but node doesn't seem to build properly without sudo,
+      # and even then it seem sketchy. but this seems to work. no idea why. suggestions welcome
+      system_or_die "sudo make || make || sudo make"
+
+      system_or_die "sudo chown -R #{ENV['USER']}:staff ."
+      system_or_die "make install"
+      system_or_die "brew link node"
     end
   end
 
@@ -78,7 +103,7 @@ class Node < Thor
     end
 
     def version
-      Version.from Command.capture(%w[node -v]).chomp
+      Version.from capture(%w[node -v]).chomp
     rescue Command::Error
       nil
     end
@@ -100,7 +125,7 @@ module Brew
   extend self
 
   def prefix
-    Command.new(%w[brew --prefix]).capture.chomp
+    Command.capture(%w[brew --prefix]).chomp
   rescue Command::Error
     nil
   end
@@ -142,7 +167,7 @@ class Command
     command.join(' ')
   end
 
-  def system_or_die
+  def system_or_raise
     puts "+ #{command_string}"
     system(*command)
     self.process = $?
@@ -151,7 +176,7 @@ class Command
     raise Command::Error, self
   end
 
-  def run_or_die
+  def run_or_raise
     run
     return self if process.success?
 
@@ -159,21 +184,15 @@ class Command
   end
 
   def capture
-    run_or_die.stdout
+    run_or_raise.stdout
   end
 
   def self.capture(*cmd)
     new(*cmd).capture
-  rescue => e
-    $stdout.puts e
-    exit(1)
   end
 
-  def self.system_or_die(*cmd)
-    new(*cmd).system_or_die
-  rescue => e
-    $stdout.puts e
-    exit(1)
+  def self.system_or_raise(*cmd)
+    new(*cmd).system_or_raise
   end
 end
 
@@ -198,6 +217,6 @@ class Version
 
   def self.from(version)
     return version if version.is_a?(Version)
-    Version.new(version)
+    Version.new(version[/\b(\d(?:\.\d+)+)\b/, 1])
   end
 end
