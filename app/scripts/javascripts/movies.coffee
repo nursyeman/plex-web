@@ -41,6 +41,12 @@ class View
   size: ->
     new Size(@element.width(), @element.height())
 
+  width: ->
+    @element.width()
+
+  height: ->
+    @element.height()
+
   setSize: (size) ->
     @element.width(size.width).height(size.height)
 
@@ -217,6 +223,50 @@ class MovieTile extends View
       }
       @show()
 
+class Label extends View
+  ellipses: '…'
+  _text: null
+
+  constructor: (element) ->
+    super element
+    @text: element.text()
+
+  maxwidth: ->
+    @maxwidth
+
+  setMaxwidth: (maxwidth) ->
+    @maxwidth: maxwidth
+    @redraw()
+
+  text: ->
+    @_text
+
+  setText: (text) ->
+    @_text: text
+    @redraw()
+
+  redraw: ->
+    @element.text @_text
+    return unless @maxwidth? and @_text?
+    return if @element.width() <= @maxwidth
+
+    # test sizes on a copy copy to prevent reflows
+    copy: @element.clone()
+    copy.hide().insertAfter(@element)
+
+    fullText: @_text
+
+    for i in [fullText.length-@ellipses.length-1..0]
+      text: fullText.substring(0, i) + @ellipses
+      copy.text(text)
+      console.log text, copy.width(), @maxwidth
+      if copy.width() <= @maxwidth
+        @element.text text
+        break
+
+    # clean up the copy
+    copy.remove()
+
 class Movie
   data: null
 
@@ -254,17 +304,24 @@ class MovieDetailView extends View
         <p class="MovieDescription"></p>
       </div>')
 
-    @h1:          @element.find 'h1'
+    @h1:          new Label(@element.find 'h1')
     @poster:      new ImageView(@element.find '.MoviePoster')
     @description: @element.find '.MovieDescription'
     @movie:       movie
 
+    @onresize()
+    Viewport.bind 'resize', => @onresize()
+
   show: ->
-    @h1.text @movie.title()
+    @h1.setText @movie.title()
     page.wallpaper.load @movie.fanartURL()
     @poster.load @movie.posterURL()
     @description.text @movie.description()
     super()
+
+  onresize: ->
+    # 20 margin + 300 poster + 20 margin + h1.width + 20 margin = page.width
+    @h1.setMaxwidth page.width() - 360
 
 jQuery ($) ->
   page.wallpaper: new Wallpaper($('body > .Wallpaper'))
