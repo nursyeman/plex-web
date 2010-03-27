@@ -25,6 +25,10 @@ How to start the app:
 
         ln -s ~/Library/Application\ Support/Plex/userdata/Database/MyVideos34.db db/development.sqlite3
 
-4. Start the web site:
+4. Install CoffeeScript (if you don't already have it):
+
+        thor coffee:install
+
+5. Start the web site:
 
         bundle exec rails server
