@@ -333,7 +333,7 @@ jQuery ($) ->
     movies: (callback) ->
       $.ajax {
         type: 'GET'
-        url: '/movies'
+        url: '/movies.json'
         dataType: 'json'
         success: callback
       }
