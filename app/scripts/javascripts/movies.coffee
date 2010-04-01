@@ -282,7 +282,7 @@ class Label extends View
     @redraw()
 
   redraw: ->
-    @element.text @_text
+    @element.attr('title', '').text @_text
     return unless @maxwidth? and @_text?
     return if @element.width() <= @maxwidth
 
@@ -291,6 +291,7 @@ class Label extends View
     copy.hide().insertAfter(@element)
 
     fullText: @_text
+    @element.attr 'title', fullText
 
     for i in [fullText.length-@ellipses.length-1..0]
       text: fullText.substring(0, i) + @ellipses
