@@ -22,9 +22,15 @@ class View
 
   onKeyPress: (event) ->
     switch event.which
-      when 27
+      when 27 # esc
         event.preventDefault()
         @trigger 'cancel'
+      when 37 # left
+        event.preventDefault()
+        @trigger 'left'
+      when 39 # right
+        event.preventDefault()
+        @trigger 'right'
 
   bind: (name, callback) ->
     @element.bind name, callback
@@ -192,6 +198,9 @@ class MovieTileList extends View
   constructor: ->
     super $('<div class="MovieTileList"></div>')
 
+    page.bind 'left', => @selectPrevious()
+    page.bind 'right', => @selectNext()
+
   displayTiles: (tiles) ->
     @hide()
     _.invoke(@tiles, 'remove') if @tiles
@@ -203,14 +212,41 @@ class MovieTileList extends View
     page.wallpaper.clear()
     super()
 
+  select: (tile) ->
+    page.popView() while page.topView() != this
+    @selectedIndex: @tiles.indexOf(tile)
+    page.pushView new MovieDetailView(this, tile.movie)
+
+  selectPrevious: ->
+    newIndex: @selectedIndex - 1
+    if newIndex < 0
+      # wrap around to the end
+      @selectLast()
+    else
+      @select @tiles[newIndex]
+
+  selectLast: ->
+    @select @tiles[@tiles.length-1]
+
+  selectNext: ->
+    newIndex: @selectedIndex + 1
+    if newIndex >= @tiles.length
+      # wrap around to the beginning
+      @selectFirst()
+    else
+      @select @tiles[newIndex]
+
+  selectFirst: ->
+    @select @tiles[0]
+
 class MovieTile extends View
   movie: null
 
-  constructor: ->
+  constructor: (parent) ->
     super $('<div class="MovieTile"><img /></div>')
     @image: @element.find 'img'
-    @bind 'click', =>
-      page.pushView new MovieDetailView(@movie)
+
+    @bind 'click', => parent.select(this)
 
   setMovie: (movie) ->
     @hide()
@@ -259,7 +295,6 @@ class Label extends View
     for i in [fullText.length-@ellipses.length-1..0]
       text: fullText.substring(0, i) + @ellipses
       copy.text(text)
-      console.log text, copy.width(), @maxwidth
       if copy.width() <= @maxwidth
         @element.text text
         break
@@ -296,7 +331,7 @@ class Movie
 class MovieDetailView extends View
   movie: null
 
-  constructor: (movie) ->
+  constructor: (parent, movie) ->
     super $('
       <div class="MovieDetailView">
         <h1></h1>
@@ -308,6 +343,7 @@ class MovieDetailView extends View
     @poster:      new ImageView(@element.find '.MoviePoster')
     @description: @element.find '.MovieDescription'
     @movie:       movie
+    @parent:      parent
 
     @onresize()
     Viewport.bind 'resize', => @onresize()
@@ -343,7 +379,7 @@ jQuery ($) ->
     tileList: new MovieTileList()
     tiles:
       _.map data, (datum) ->
-        tile: new MovieTile()
+        tile: new MovieTile(tileList)
         tile.setMovie(new Movie(datum))
         return tile
     tileList.displayTiles tiles
