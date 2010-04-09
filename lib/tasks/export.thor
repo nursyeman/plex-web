@@ -15,11 +15,19 @@ class Export < Thor
           end
         end
 
-        data = save "/movies.json", nil, true
-        movies = ActiveSupport::JSON.decode(data)
+        save "/movies.json", nil, true do |data|
+          movies = ActiveSupport::JSON.decode(data)
 
-        movies.each do |movie|
-          save((movie['fanarts'].values + movie['posters'].values).map { |art| art['url'] })
+          movies.each do |movie|
+            %w[fanarts posters].each do |type|
+              movie[type].each do |size, asset|
+                save asset['url']
+                asset['url'] = asset['url'][1..-1] if asset['url'] =~ %r{^/}
+              end
+            end
+          end
+
+          ActiveSupport::JSON.encode(movies)
         end
       end
     end
